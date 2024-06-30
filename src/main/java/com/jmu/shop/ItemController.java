@@ -19,6 +19,7 @@ public class ItemController {
 
     private final ItemRepository itemRepository;
     private final NoticeRepository noticeRepository;
+    private final ItemService itemService;
     @GetMapping("/list")
     String list(Model model){
         List<Item> result = itemRepository.findAll();
@@ -54,14 +55,9 @@ public class ItemController {
 
     @PostMapping("/edit_insert")
     String edit_insert(@RequestParam Map<String, Object> formData){
-        System.out.println(formData.get("title"));
-        System.out.println(formData.get("price"));
 
-        Item item = new Item();
-        item.title = formData.get("title").toString();
-        item.price = Integer.valueOf(formData.get("price").toString());
+        itemService.saveItem(formData);
 
-        itemRepository.save(item);
         return "redirect:/list";
     }
 
@@ -79,4 +75,27 @@ public class ItemController {
             return "redirect:/list";
         }
     }
+
+    @GetMapping("/modify/{id}")
+    String modify(@PathVariable Long id,Model model){
+        Optional<Item> result = itemRepository.findById(id);
+        System.out.println(result.get());
+        model.addAttribute("detail",result.get());
+
+        return "modify.html";
+    }
+
+    @PostMapping("/modify_update")
+    String modify_update(@RequestParam Map<String, Object> formData){
+        Item item = new Item();
+        item.id = Long.valueOf(formData.get("id").toString());
+        item.title = formData.get("title").toString();
+        item.price = Integer.valueOf(formData.get("price").toString());
+
+        itemRepository.save(item);
+
+        return "redirect:/list";
+    }
+
+
 }
